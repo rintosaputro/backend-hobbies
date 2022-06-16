@@ -12,7 +12,7 @@ exports.getAllUsers = async (req, res) => {
 
     const offset = (page - 1) * limit
     const {count, rows} = await Users.findAndCountAll({
-      attributes: ['id', 'firstName', 'lastName', 'email'],
+      attributes: ['id', 'firstName', 'lastName', 'age', 'email'],
       include: [],
       offset,
       limit
@@ -49,7 +49,7 @@ exports.getUser = async (req, res) => {
     ]
 
     const results = await Users.findByPk(id, {
-      attributes: ['id', 'firstName', 'lastName', 'email'],
+      attributes: ['id', 'firstName', 'lastName', 'age', 'email'],
       include,
     })
 
@@ -109,9 +109,9 @@ exports.editUser = async (req, res) => {
     const {id} = req.params
     const user = await Users.findByPk(id)
     if (user) {
-      const {firstName, lastName, email, password} = req.body
+      const {firstName, lastName, age, email, password} = req.body
 
-      const data = {firstName, lastName, email}
+      const data = {firstName, lastName, age, email}
 
       if (password) {
         if (passwordValidator(password)) {
