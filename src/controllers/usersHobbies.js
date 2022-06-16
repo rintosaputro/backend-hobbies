@@ -56,7 +56,8 @@ exports.getUsersHobbies = async (req, res) => {
 
 exports.addUsersHobbies = async (req, res) => {
   try {
-    const {isActive, userId, hobbyId} = req.body
+    const {isActive, hobbyId} = req.body
+    const {id : userId} = req.user
 
     const user = await Users.findByPk(userId)
 
@@ -95,7 +96,8 @@ exports.editUsersHobbies = async (req, res) => {
     })
 
     if (results) {
-      const {isActive, userId, hobbyId} = req.body
+      const {isActive, hobbyId} = req.body
+      const {id: userId} = req.user
       const data = {}
 
       if (isActive) {

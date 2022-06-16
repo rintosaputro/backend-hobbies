@@ -8,7 +8,7 @@ exports.verifyUser = (req, res, next) => {
   if (!auth) {
     return response(res, 'Unauthorized', null, null, 401)
   }
-  if (auth.startWith('Bearer')) {
+  if (auth.startsWith('Bearer')) {
     const token = auth.split(' ')[1]
     if (token) {
       const decode = jwt.verify(token, APP_SECRET)
