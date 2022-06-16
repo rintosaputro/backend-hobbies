@@ -25,3 +25,29 @@ exports.getAllUsersHobbies = async (req, res) => {
     }
   }
 }
+
+exports.getUsersHobbies = async (req, res) => {
+  try {
+    const {id} = req.params
+    const results = await UsersHobbies.findByPk(id, {
+      attributes: ['id', 'isActive', 'userId', 'hobbyId']
+    })
+
+    if (results) {
+      return response(res, 'Detail User Hobby', results)
+    } else {
+      return response(res, 'Data not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
