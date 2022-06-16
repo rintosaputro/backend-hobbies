@@ -84,3 +84,32 @@ exports.addHobby = async (req, res) => {
     }
   }
 }
+
+exports.editHobby = async (req, res) => {
+  try {
+    const {id} = req.params
+    
+    const results = await Hobbies.findByPk(id)
+
+    if (results) {
+      const {hobby} = req.body
+      results.hobby = hobby
+
+      await results.save()
+      return response(res, 'Successfully edited hobby', results)
+    } else {
+      return response(res, 'Hobby not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
