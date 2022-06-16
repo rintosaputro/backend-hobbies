@@ -54,6 +54,38 @@ exports.getUsersHobbies = async (req, res) => {
   }
 }
 
+exports.addUsersHobbies = async (req, res) => {
+  try {
+    const {isActive, userId, hobbyId} = req.body
+
+    const user = await Users.findByPk(userId)
+
+    if (!user) {
+      return response(res, 'User is not defined', null, null, 404)
+    }
+    if (!hobbyId) {
+      return response(res, 'Hobby is not defined', null, null, 404)
+    }
+
+    const results = await UsersHobbies.create({
+      isActive, userId, hobbyId
+    })
+
+    return response(res, 'Successfully added users hobbies', results)
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
+
 exports.editUsersHobbies = async (req, res) => {
   try {
     const {id} = req.params
