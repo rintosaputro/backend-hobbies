@@ -73,6 +73,42 @@ exports.getUser = async (req, res) => {
   }
 }
 
+exports.getProfile = async (req, res) => {
+  try {
+    const {id} = req.user
+    console.log(req.user)
+    const include = [
+      {
+        model: Hobbies,
+        as: 'hobbies'
+      }
+    ]
+
+    const profile = await Users.findByPk(id, {
+      attributes: ['id', 'firstName', 'lastName', 'age', 'email'],
+      include,
+    })
+
+    if (profile) {
+      return response(res, 'Detail Profile', profile)
+    } else {
+      return response(res, 'User not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
+
 exports.addUser = async (req, res) => {
   try {
     const {firstName, lastName, email, password} = req.body
@@ -107,6 +143,51 @@ exports.addUser = async (req, res) => {
 exports.editUser = async (req, res) => {
   try {
     const {id} = req.params
+    const user = await Users.findByPk(id)
+    if (user) {
+      const {firstName, lastName, age, email, password} = req.body
+
+      const data = {firstName, lastName, age, email}
+
+      if (password) {
+        if (passwordValidator(password)) {
+          // Hashing password
+          const salt = await bcrypt.genSalt(10)
+          const hashPassword = await bcrypt.hash(password, salt)
+
+          data.password = hashPassword
+        } else {
+          return response(res, 'Password must be at least 6 characters, uppercase and lowercase', null, null, 400)
+        }
+      }
+      
+      for (let key in data) {
+        if (data[key]) user[key] = data[key]
+      }
+
+      await user.save()
+      
+      return response(res, 'Successfully edited user', null, null, 200)
+    } else {
+      return response(res, 'User not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
+
+exports.editProfile = async (req, res) => {
+  try {
+    const {id} = req.user
     const user = await Users.findByPk(id)
     if (user) {
       const {firstName, lastName, age, email, password} = req.body
