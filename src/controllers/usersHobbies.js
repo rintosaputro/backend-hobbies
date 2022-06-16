@@ -147,3 +147,29 @@ exports.editUsersHobbies = async (req, res) => {
     }
   }
 }
+
+exports.deleteUsersHobbies = async (req, res) => {
+  try {
+    const {id} = req.params
+
+    const results = await UsersHobbies.findByPk(id)
+
+    if (results) {
+      results.destroy()
+      return response(res, 'Successfully deleted', results)
+    } else {
+      return response(res, 'Data is not define', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}

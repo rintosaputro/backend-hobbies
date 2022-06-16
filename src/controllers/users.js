@@ -85,11 +85,11 @@ exports.addUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
 
-    const results = await Users.create({
+    await Users.create({
       firstName, lastName, email, password: hashPassword
     })
 
-    return response(res, 'Successfully created user', results)
+    return response(res, 'Successfully created user')
   } catch (err) {
     if (err.errors) {
       let message = ''

@@ -8,8 +8,8 @@ const Users = require('./users')
 const UserHobby = sequelize.define('usersHobbies', {
   id: {
     type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
+    primaryKey: true
   },
   isActive: {
     type: Sequelize.BOOLEAN,
