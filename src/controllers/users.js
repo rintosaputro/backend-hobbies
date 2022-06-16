@@ -12,7 +12,7 @@ exports.getAllUsers = async (req, res) => {
     const offset = (page - 1) * limit
 
     const {count, rows} = await Users.findAndCountAll({
-      attributes: ['id', 'firstName', 'lastName'],
+      attributes: ['id', 'firstName', 'lastName', 'email'],
       offset,
       limit
     })
@@ -28,6 +28,7 @@ exports.getAllUsers = async (req, res) => {
       err.errors.map(error => {
         message = error.message
       })
+  
       return response(res, message, null, null, 400)
     } else {
       return response(res, 500, 'Unexpeted Error')
@@ -58,6 +59,52 @@ exports.addUser = async (req, res) => {
       err.errors.map(error => {
         message = error.message
       })
+
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 500, 'Unexpeted Error')
+    }
+  }
+}
+
+exports.editUser = async (req, res) => {
+  try {
+    const {id} = req.params
+    const user = await Users.findByPk(id)
+    if (user) {
+      const {firstName, lastName, email, password} = req.body
+
+      const data = {firstName, lastName, email}
+
+      if (password) {
+        if (passwordValidator(password)) {
+          // Hashing password
+          const salt = await bcrypt.genSalt(10)
+          const hashPassword = await bcrypt.hash(password, salt)
+
+          data.password = hashPassword
+        } else {
+          return response(res, 'Password must be at least 6 characters, uppercase and lowercase', null, null, 400)
+        }
+      }
+      
+      for (let key in data) {
+        if (data[key]) user[key] = data[key]
+      }
+
+      await user.save()
+      
+      return response(res, 'Successfully edited user', null, null, 200)
+    } else {
+      return response(res, 'User not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+
       return response(res, message, null, null, 400)
     } else {
       return response(res, 500, 'Unexpeted Error')
