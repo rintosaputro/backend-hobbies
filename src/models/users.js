@@ -20,6 +20,7 @@ const Users = sequelize.define('users', {
   },
   email: {
     type: Sequelize.STRING,
+    allowNull: false,
     unique: {
       msg: 'Email has been used!'
     },

@@ -1,5 +1,7 @@
 const Users = require('../models/users')
 const {response, pageInfo} = require('../helpers/responseHandler')
+const {passwordValidator} = require('../helpers/validator')
+const bcrypt = require('bcrypt')
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -21,6 +23,44 @@ exports.getAllUsers = async (req, res) => {
       return response(res, 'Data not found', null, null, 404)
     }
   } catch (err) {
-    return response(res, 'Unexpected error', err, null, 500)
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 500, 'Unexpeted Error')
+    }
+  }
+}
+
+exports.addUser = async (req, res) => {
+  try {
+    const {firstName, lastName, email, password} = req.body
+
+    if (!passwordValidator(password)) {
+      return response(res, 'Password must be at least 6 characters, uppercase and lowercase', null, null, 400)
+    }
+
+    // Hashing password
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(password, salt)
+
+    const results = await Users.create({
+      firstName, lastName, email, password: hashPassword
+    })
+
+    return response(res, 'Successfully created user', results)
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+      err.errors.map(error => {
+        message = error.message
+      })
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 500, 'Unexpeted Error')
+    }
   }
 }
