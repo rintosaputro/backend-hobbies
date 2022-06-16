@@ -54,7 +54,6 @@ exports.getUser = async (req, res) => {
     })
 
     if (results) {
-      console.log(results)
       return response(res, 'Detail User', results)
     } else {
       return response(res, 'User not found', null, null, 404)
