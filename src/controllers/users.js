@@ -1,4 +1,5 @@
 const Users = require('../models/users')
+const Hobbies = require('../models/hobbies')
 const {response, pageInfo} = require('../helpers/responseHandler')
 const {passwordValidator} = require('../helpers/validator')
 const bcrypt = require('bcrypt')
@@ -10,9 +11,9 @@ exports.getAllUsers = async (req, res) => {
     limit = parseInt(limit) || 5
 
     const offset = (page - 1) * limit
-
     const {count, rows} = await Users.findAndCountAll({
       attributes: ['id', 'firstName', 'lastName', 'email'],
+      include: [],
       offset,
       limit
     })
@@ -31,7 +32,44 @@ exports.getAllUsers = async (req, res) => {
   
       return response(res, message, null, null, 400)
     } else {
-      return response(res, 500, 'Unexpeted Error')
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
+
+exports.getUser = async (req, res) => {
+  try {
+    const {id} = req.params
+
+    const include = [
+      {
+        model: Hobbies,
+        as: 'hobbies'
+      }
+    ]
+
+    const results = await Users.findByPk(id, {
+      attributes: ['id', 'firstName', 'lastName', 'email'],
+      include,
+    })
+
+    if (results) {
+      console.log(results)
+      return response(res, 'Detail User', results)
+    } else {
+      return response(res, 'User not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
     }
   }
 }
@@ -62,7 +100,7 @@ exports.addUser = async (req, res) => {
 
       return response(res, message, null, null, 400)
     } else {
-      return response(res, 500, 'Unexpeted Error')
+      return response(res, 'Unexpeted Error', null, null, 500)
     }
   }
 }
@@ -107,7 +145,7 @@ exports.editUser = async (req, res) => {
 
       return response(res, message, null, null, 400)
     } else {
-      return response(res, 500, 'Unexpeted Error')
+      return response(res, 'Unexpeted Error', null, null, 500)
     }
   }
 }
