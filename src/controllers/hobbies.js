@@ -62,3 +62,25 @@ exports.getHobby = async (req, res) => {
     }
   }
 }
+
+exports.addHobby = async (req, res) => {
+  try {
+    const {hobby} = req.body
+
+    const results = await Hobbies.create({hobby})
+
+    return response(res, 'Successfully created hobby', results)
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
