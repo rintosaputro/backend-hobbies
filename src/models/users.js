@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize')
 const sequelize = require('../helpers/sequelize')
-const Hobbies = require('./hobbies')
 
 const Users = sequelize.define('users', {
   firstName: {
@@ -16,6 +15,23 @@ const Users = sequelize.define('users', {
     validate: {
       notEmpty: {
         msg: 'Last name can not be empty'
+      }
+    }
+  },
+  age : {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+    validate: {
+      isNumeric: {
+        msg: 'Age must be number'
+      },
+      min: {
+        args: 10,
+        msg: 'Age must be above 10 and under 200'
+      },
+      max: {
+        args: 200,
+        msg: 'Age must be above 10 and under 200'
       }
     }
   },
@@ -42,31 +58,6 @@ const Users = sequelize.define('users', {
       }
     }
   }
-})
-
-// Many to Many relation (user and hobby)
-
-const UserHobby = sequelize.define('usersHobbies', {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true
-  },
-  isActive: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false,
-  }
-})
-
-Users.belongsToMany(Hobbies, {
-  as: 'hobbies',
-  through: UserHobby,
-  foreignKey: 'userId'
-})
-
-Hobbies.belongsToMany(Users, {
-  as: 'users',
-  through: UserHobby,
-  foreignkey: 'hobbyId'
 })
 
 module.exports = Users
