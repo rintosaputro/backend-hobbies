@@ -15,7 +15,7 @@ exports.getAllHobbies = async (req, res) => {
       limit
     })
     
-    if (rows) {
+    if (rows.length > 0) {
       const pagination = pageInfo(count, limit, page, 'hobbies')
       return response(res, 'List hobbies', rows, pagination)
     } else {
@@ -43,10 +43,40 @@ exports.getHobby = async (req, res) => {
       attributes: ['id', 'hobby']
     })
 
-    if (results) {
+    if (results.length > 0) {
       return response(res, 'Detail hobby', results)
     } else {
       return response(res, 'Hobby not found', null, null, 404)
+    }
+  } catch (err) {
+    if (err.errors) {
+      let message = ''
+
+      err.errors.map(error => {
+        message = error.message
+      })
+  
+      return response(res, message, null, null, 400)
+    } else {
+      return response(res, 'Unexpeted Error', null, null, 500)
+    }
+  }
+}
+
+exports.getHobbyByName = async (req, res) => {
+  try {
+    const {hobby} = req.query
+
+    const results = await Hobbies.findAll({
+      where: {
+        hobby: hobby
+      }
+    })
+
+    if (results.length > 0) {
+      return response(res, 'Hobby is defined', results)
+    } else {
+      return response(res, 'Data not found', null, null, 404)
     }
   } catch (err) {
     if (err.errors) {
